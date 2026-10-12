@@ -162,12 +162,22 @@ TSet TSet::operator~(void) // дополнение
 
 istream &operator>>(istream &istr, TSet &s) // ввод
 {
-    istr >> s.BitField;
+    for (int i = 0; i < s.MaxPower; i++) {
+        bool bit;
+        istr >> bit;
+        if (bit)
+            s.InsElem(i);
+        else
+            s.DelElem(i);
+    }
     return istr;
 }
 
 ostream& operator<<(ostream &ostr, const TSet &s) // вывод
 {
-    ostr << s.BitField;
+    for (int i = 0; i < s.MaxPower; i++) {
+        if (s.IsMember(i) == 0)
+            ostr << i;
+    }
     return ostr;
 }
