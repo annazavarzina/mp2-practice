@@ -36,6 +36,7 @@ int TSet::IsMember(const int Elem) const // элемент множества?
 {
     if (Elem>=0 && Elem<MaxPower)
         return BitField.GetBit(Elem);
+    return 0;
 }
 
 void TSet::InsElem(const int Elem) // включение элемента множества
@@ -162,22 +163,41 @@ TSet TSet::operator~(void) // дополнение
 
 istream &operator>>(istream &istr, TSet &s) // ввод
 {
-    for (int i = 0; i < s.MaxPower; i++) {
-        bool bit;
-        istr >> bit;
-        if (bit)
-            s.InsElem(i);
-        else
-            s.DelElem(i);
+    for (int i = 0; i < s.MaxPower; i++)
+        s.DelElem(i);
+
+    int elem;
+
+    while (istr >> elem)
+    {
+        if (elem < 0 || elem >= s.MaxPower)
+        {
+            throw invalid_argument("Элемент выходит за границы множества");
+        }
+
+        s.InsElem(elem);
+
+        if (istr.peek() == '\n')
+            break;
     }
+
     return istr;
 }
 
 ostream& operator<<(ostream &ostr, const TSet &s) // вывод
 {
-    for (int i = 0; i < s.MaxPower; i++) {
-        if (s.IsMember(i) == 0)
+    bool first = true;
+
+    for (int i = 0; i < s.MaxPower; i++)
+    {
+        if (s.IsMember(i))
+        {
+            if (!first)
+                ostr << " ";
+
             ostr << i;
+            first = false;
+        }
     }
     return ostr;
 }
