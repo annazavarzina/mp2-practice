@@ -14,7 +14,7 @@ TBitField::TBitField(int len)
     if (len < 0)
         throw invalid_argument("ОТРИЦАТЕЛЬНАЯ ДЛИНА");
     BitLen = len;
-    MemLen = (BitLen + 31) / 32;
+    MemLen = (BitLen + 31) / 32; // todo: вынести в константы #define или static const
     pMem = new TELEM[MemLen]();
 
 }
@@ -36,12 +36,12 @@ TBitField::~TBitField()
 
 int TBitField::GetMemIndex(const int n) const// в каком элементe pMem находится элемент с номером n?
 {
-    return n/32;
+    return n/32; // todo: вынести в константы #define или static const
 }
 
 TELEM TBitField::GetMemMask(const int n) const // битовая маска для бита n
 {
-    return (TELEM)1<<(n%32);
+    return (TELEM)1<<(n%32); // todo: вынести в константы #define или static const
 }
 
 // доступ к битам битового поля
@@ -72,7 +72,7 @@ int TBitField::GetBit(const int n) const // получить значение б
     if (n < 0 || n >= BitLen)
         throw out_of_range("БИТ ВЫХОДИТ ИЗ ГРАНИЦ");
 
-    return (pMem[GetMemIndex(n)] & GetMemMask(n)) != 0;
+    return (pMem[GetMemIndex(n)] & GetMemMask(n));
 }
 
 // битовые операции
@@ -116,7 +116,7 @@ int TBitField::operator!=(const TBitField &bf) const // сравнение
   return !(*this == bf);
 }
 
-TBitField TBitField::operator|(const TBitField& bf) // операция "или"
+TBitField TBitField::operator|(const TBitField& bf) // операция "или" // todo
 {
     int newLen;
     if (BitLen > bf.BitLen)
@@ -139,26 +139,35 @@ TBitField TBitField::operator|(const TBitField& bf) // операция "или"
     return res;
 }
 
-TBitField TBitField::operator&(const TBitField &bf) // операция "и"
+TBitField TBitField::operator&(const TBitField &bf) // операция "и" // todo
 {
-    int newLen;
-    if (BitLen > bf.BitLen)
-        newLen = BitLen;
-    else
-        newLen = bf.BitLen;
+    //int newLen;
+    //if (BitLen > bf.BitLen)
+    //    newLen = BitLen;
+    //else
+    //    newLen = bf.BitLen;
 
-    TBitField res(newLen);
-    for (int i = 0; i < newLen; i++) {
-        int bit1 = 0;
-        int bit2 = 0;
+    //TBitField res(newLen);
+    //for (int i = 0; i < newLen; i++) {
+    //    int bit1 = 0;
+    //    int bit2 = 0;
 
-        if (i < BitLen)
-            bit1 = GetBit(i);
-        if (i < bf.BitLen)
-            bit2 = bf.GetBit(i);
-        if (bit1 && bit2)
-            res.SetBit(i);
+    //    if (i < BitLen)
+    //        bit1 = GetBit(i);
+    //    if (i < bf.BitLen)
+    //        bit2 = bf.GetBit(i);
+    //    if (bit1 && bit2)
+    //        res.SetBit(i);
+    //}
+    //return res;
+
+    TBitField res(BitLen);
+    res.MemLen = max( MemLen, bf.MemLen );
+
+    for (int i = 0; i < min(MemLen, bf.MemLen); ++i) {
+        res.pMem[i] = this->pMem[i] & bf.pMem[i];
     }
+
     return res;
 }
 
