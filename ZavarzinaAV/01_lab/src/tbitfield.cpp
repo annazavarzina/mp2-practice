@@ -72,7 +72,7 @@ int TBitField::GetBit(const int n) const // получить значение б
     if (n < 0 || n >= BitLen)
         throw out_of_range("БИТ ВЫХОДИТ ИЗ ГРАНИЦ");
 
-    return (pMem[GetMemIndex(n)] & GetMemMask(n));
+    return (pMem[GetMemIndex(n)] & GetMemMask(n))!=0;
 }
 
 // битовые операции
