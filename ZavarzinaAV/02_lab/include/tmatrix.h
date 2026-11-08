@@ -60,6 +60,9 @@ public:
 
   TDynamicVector& operator=(const TDynamicVector& v)
   {
+      if (this == &v)
+          return *this;
+
       if (this != &v) {
           TDynamicVector temp(v);
           swap(*this, temp);
@@ -89,7 +92,7 @@ public:
 
   const T& operator[](size_t ind) const
   {
-      throw "Method is not implemented";
+      return pMem[ind];
   }
   // индексация с контролем
   T& at(size_t ind)
@@ -101,7 +104,10 @@ public:
   }
   const T& at(size_t ind) const
   {
-      throw "Method is not implemented";
+      if (ind >= sz)
+          throw out_of_range("Index out of range");
+
+      return pMem[ind];
   }
 
   // сравнение
@@ -110,7 +116,7 @@ public:
       if (sz != v.size)
           return False;
 
-      for (size_t i; i < sz; i++) {
+      for (size_t i=0; i < sz; i++) {
 
           if (pMem[i] != v.pMem[i])
               return False
@@ -126,44 +132,68 @@ public:
   // скалярные операции
   TDynamicVector operator+(T val)
   {
-      if (sz != v.sz)
-          throw invalid_argument("Different vector sizes");
+      TDynamicVector res(sz);
 
-      DynamicVector res(sz);
-      for (size_s i; i < sz; i++)
-          res[i] = pMem[i] + v.pMem[i];
+      for (size_t i = 0; i < sz; i++)
+          res[i] = pMem[i] + val;
 
       return res;
   }
 
   TDynamicVector operator-(T val)
   {
-      if (sz != v.sz)
-          throw invalid_argument("Different vector sizes");
+      TDynamicVector res(sz);
 
-      DynamicVector res(sz);
-      for (size_s i; i < sz; i++)
-          res[i] = pMem[i] - v.pMem[i];
+      for (size_t i = 0; i < sz; i++)
+          res[i] = pMem[i] - val;
 
       return res;
   }
 
   TDynamicVector operator*(T val)
   {
-      throw "Method is not implemented";
+      TDynamicVector res(sz);
+
+      for (size_t i = 0; i < sz; i++)
+          res[i] = pMem[i] * val;
+
+      return res;
   }
 
   // векторные операции
   TDynamicVector operator+(const TDynamicVector& v)
   {
-      throw "Method is not implemented";
+      if (sz != v.sz)
+          throw invalid_argument("Different vector sizes");
+
+      DynamicVector res(sz);
+      for (size_s i=0; i < sz; i++)
+          res[i] = pMem[i] + v.pMem[i];
+
+      return res;
   }
   TDynamicVector operator-(const TDynamicVector& v)
   {
-      throw "Method is not implemented";
+      if (sz != v.sz)
+          throw invalid_argument("Different vector sizes");
+
+      DynamicVector res(sz);
+      for (size_s i=0; i < sz; i++)
+          res[i] = pMem[i] - v.pMem[i];
+
+      return res;
   }
   T operator*(const TDynamicVector& v) noexcept(noexcept(T()))
   {
+      if (sz != v.sz)
+          throw invalid_argument("Different vector sizes");
+
+      T res = T();
+
+      for (size_t i = 0; i < sz; i++) 
+          res += pMem[i] * v.pMem[i];
+
+      return res;
   }
 
   friend void swap(TDynamicVector& lhs, TDynamicVector& rhs) noexcept
@@ -207,43 +237,130 @@ public:
   // сравнение
   bool operator==(const TDynamicMatrix& m) const noexcept
   {
-      throw "Method is not implemented";
+      if (sz != m.sz)
+          return False;
+
+      for (size_t i = 0; i < sz; i++) {
+          if (pMem[i] != m.pMem[i])
+              return False;
+      }
+
+      return True;
   }
 
   // матрично-скалярные операции
   TDynamicMatrix operator*(const T& val)
   {
-      throw "Method is not implemented";
+      TDynamicMatrix res(sz);
+
+      for (size_t i = 0; i < sz; i++) {
+          for (size_t j = 0; j < sz; j++) {
+
+              res[i][j] = pMem[i][j]*val
+          }
+      }
+      return res;
   }
 
   // матрично-векторные операции
   TDynamicVector<T> operator*(const TDynamicVector<T>& v)
   {
-      throw "Method is not implemented";
+      if (sz != v.size())
+          throw invalid_argument("Different matrix and vector sizes");
+
+      TDynamicVector<T> res(sz);
+
+      for (size_t i = 0; i < sz; i++) {
+          T sum = T();
+
+          for (size_t j = 0; j < sz; j++) {
+              res[i][j] = pMem[i][j] * v[j];
+          }
+
+          res[i] = sum;
+      }
+      return res;
   }
 
   // матрично-матричные операции
   TDynamicMatrix operator+(const TDynamicMatrix& m)
   {
-      throw "Method is not implemented";
+      if (sz != m.sz)
+          throw invalid_argument("Different matrix sizes");
+
+      TDynamicMatrix res(sz);
+      for (size_t i = 0; i < sz; i++) {
+
+          for (size_t j = 0; j < sz; j++) {
+
+              res[i][j] = pMem[i][j] + m.pMem[i][j];
+          }
+      }
+      return res;
   }
+
   TDynamicMatrix operator-(const TDynamicMatrix& m)
   {
-      throw "Method is not implemented";
+      if (sz != m.sz)
+          throw invalid_argument("Different matrix sizes");
+
+      TDynamicMatrix res(sz);
+      for (size_t i = 0; i < sz; i++) {
+
+          for (size_t j = 0; j < sz; j++) {
+
+              res[i][j] = pMem[i][j] - m.pMem[i][j];
+          }
+      }
+      return res;
   }
+
   TDynamicMatrix operator*(const TDynamicMatrix& m)
   {
-      throw "Method is not implemented";
+      if (sz != m.sz)
+          throw invalid_argument("Different matrix sizes");
+
+      TDynamicMatrix res(sz);
+
+      for (size_t i = 0; i < sz; i++){
+
+          for (size_t j = 0; j < sz; j++){
+              result[i][j] = T();
+
+              for (size_t k = 0; k < sz; k++){
+                  
+                  res[i][j] += pMem[i][k] * m.pMem[k][j];
+              }
+          }
+      }
+
+      return res;
   }
 
   // ввод/вывод
   friend istream& operator>>(istream& istr, TDynamicMatrix& v)
   {
-      throw "Method is not implemented";
+      for (size_t i = 0; i < m.sz; i++){
+          
+          for (size_t j = 0; j < m.sz; j++){
+              
+              istr >> m.pMem[i][j];
+          }
+      }
+      return istr;
+
   }
   friend ostream& operator<<(ostream& ostr, const TDynamicMatrix& v)
   {
-      throw "Method is not implemented";
+      for (size_t i = 0; i < m.sz; i++){
+
+          for (size_t j = 0; j < m.sz; j++){
+
+              ostr << m.pMem[i][j] << ' ';
+          }
+          ostr << '\n';
+      }
+      return ostr;
   }
 };
 
