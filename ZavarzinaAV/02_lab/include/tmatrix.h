@@ -8,10 +8,8 @@
 #define __TDynamicMatrix_H__
 
 #include <iostream>
-#include <stdexcept>
 #include <cassert>
 #include <algorithm>
-#include <utility>
 
 using namespace std;
 
@@ -363,11 +361,11 @@ public:
   // ввод/вывод
   friend istream& operator>>(istream& istr, TDynamicMatrix& v)
   {
-      for (size_t i = 0; i < m.sz; i++){
+      for (size_t i = 0; i < v.sz; i++){
           
-          for (size_t j = 0; j < m.sz; j++){
+          for (size_t j = 0; j < v.sz; j++){
               
-              istr >> m.pMem[i][j];
+              istr >> v.pMem[i][j];
           }
       }
       return istr;

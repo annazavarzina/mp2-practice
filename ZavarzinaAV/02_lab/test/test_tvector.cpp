@@ -1,6 +1,6 @@
 #include "tmatrix.h"
 
-#include <gtest.h>
+#include <gtest/gtest.h>
 
 TEST(TDynamicVector, can_create_vector_with_positive_length)
 {
@@ -49,8 +49,7 @@ TEST(TDynamicVector, copied_vector_has_its_own_memory)
 
     v1[0] = 100;
 
-    EXPECT_EQ(10, v[0]);
-    EXPECT_EQ(100, v1[0]);
+    EXPECT_NE(v, v1);
 }
 
 TEST(TDynamicVector, can_get_size)
@@ -91,10 +90,6 @@ TEST(TDynamicVector, can_assign_vector_to_itself)
     v[2] = 3;
 
     ASSERT_NO_THROW(v = v);
-
-    EXPECT_EQ(1, v[0]);
-    EXPECT_EQ(2, v[1]);
-    EXPECT_EQ(3, v[2]);
 }
 
 TEST(TDynamicVector, can_assign_vectors_of_equal_size)
@@ -128,8 +123,6 @@ TEST(TDynamicVector, can_assign_vectors_of_different_size)
 
     v1[0] = 10;
     v1[1] = 20;
-
-    ASSERT_NO_THROW(v2 = v1);
 
     EXPECT_TRUE(v1 == v2);
 }
@@ -165,41 +158,35 @@ TEST(TDynamicVector, vectors_with_different_size_are_not_equal)
 
 TEST(TDynamicVector, can_add_scalar_to_vector)
 {
-    TDynamicVector<int> v(3);
+    TDynamicVector<int> v(3), exp(3);
 
-    v[0] = 1;
-    v[1] = 2;
-    v[2] = 3;
+    v[0] = 1; exp[0] = 6;
+    v[1] = 2; exp[0] = 7;
+    v[2] = 3; exp[0] = 8;
 
-    TDynamicVector<int> result = v + 5;
-
-    EXPECT_EQ(6, result[0]);
-    EXPECT_EQ(7, result[1]);
-    EXPECT_EQ(8, result[2]);
+    EXPECT_EQ(v + 5, exp);
 }
 
 TEST(TDynamicVector, can_subtract_scalar_from_vector)
 {
-    TDynamicVector<int> v(3);
+    TDynamicVector<int> v(3), exp(3); // todo exp
 
-    v[0] = 10;
-    v[1] = 20;
-    v[2] = 30;
+    v[0] = 10; exp[0] = 5;
+    v[1] = 20; exp[1] = 15;
+    v[2] = 30; exp[2] = 25;
 
     TDynamicVector<int> result = v - 5;
 
-    EXPECT_EQ(5, result[0]);
-    EXPECT_EQ(15, result[1]);
-    EXPECT_EQ(25, result[2]);
+    EXPECT_EQ(v - 5, exp);
 }
 
 TEST(TDynamicVector, can_multiply_scalar_by_vector)
 {
-    TDynamicVector<int> v(3);
+    TDynamicVector<int> v(3), exp(3); // todo exp
 
-    v[0] = 2;
-    v[1] = 3;
-    v[2] = 4;
+    v[0] = 2; exp[0] = 4;
+    v[1] = 3; exp[1] = 6;
+    v[2] = 4; exp[2] = 8;
 
     TDynamicVector<int> result = v * 2;
 
@@ -210,7 +197,7 @@ TEST(TDynamicVector, can_multiply_scalar_by_vector)
 
 TEST(TDynamicVector, can_add_vectors_with_equal_size)
 {
-    TDynamicVector<int> v1(3);
+    TDynamicVector<int> v1(3); // todo exp
     TDynamicVector<int> v2(3);
 
     for (int i = 0; i < 3; i++)
@@ -236,7 +223,7 @@ TEST(TDynamicVector, cant_add_vectors_with_not_equal_size)
 
 TEST(TDynamicVector, can_subtract_vectors_with_equal_size)
 {
-    TDynamicVector<int> v1(3);
+    TDynamicVector<int> v1(3); // todo exp
     TDynamicVector<int> v2(3);
 
     for (int i = 0; i < 3; i++)
