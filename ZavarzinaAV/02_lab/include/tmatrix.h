@@ -8,6 +8,10 @@
 #define __TDynamicMatrix_H__
 
 #include <iostream>
+#include <stdexcept>
+#include <cassert>
+#include <algorithm>
+#include <utility>
 
 using namespace std;
 
@@ -47,7 +51,7 @@ public:
       copy(v.pMem, v.pMem + sz, pMem);
   }
 
-  TDynamicVector(TDynamicVector&& v) noexcept:sz(v.sz), pMem(nullptr)
+  TDynamicVector(TDynamicVector&& v) noexcept:sz(v.sz), pMem(v.pMem)
   {
       v.sz = 0;
       v.pMem = nullptr;
@@ -63,35 +67,44 @@ public:
       if (this == &v)
           return *this;
 
-      if (this != &v) {
-          TDynamicVector temp(v);
-          swap(*this, temp);
-      }
+      TDynamicVector temp(v);
+      swap(sz, temp.sz);
+      swap(pMem, temp.pMem);
 
-      return *this
+      return *this;
   }
   TDynamicVector& operator=(TDynamicVector&& v) noexcept
   {
-      if (*this != &v) {
+      if (this != &v)
+      {
+          delete[] pMem;
+
           sz = v.sz;
           pMem = v.pMem;
 
           v.sz = 0;
           v.pMem = nullptr;
       }
+
       return *this;
   }
 
   size_t size() const noexcept { return sz; }
 
-  // индексация
+   //индексация
   T& operator[](size_t ind)
   {
+      if (ind >= sz)
+          throw out_of_range("Index out of range");
+
       return pMem[ind];
   }
 
   const T& operator[](size_t ind) const
   {
+      if (ind >= sz)
+          throw out_of_range("Index out of range");
+
       return pMem[ind];
   }
   // индексация с контролем
@@ -113,16 +126,16 @@ public:
   // сравнение
   bool operator==(const TDynamicVector& v) const noexcept
   {
-      if (sz != v.size)
-          return False;
+      if (sz != v.size())
+          return false;
 
       for (size_t i=0; i < sz; i++) {
 
           if (pMem[i] != v.pMem[i])
-              return False
+              return false;
       }
 
-      return True;
+      return true;
   }
   bool operator!=(const TDynamicVector& v) const noexcept
   {
@@ -166,8 +179,8 @@ public:
       if (sz != v.sz)
           throw invalid_argument("Different vector sizes");
 
-      DynamicVector res(sz);
-      for (size_s i=0; i < sz; i++)
+      TDynamicVector res(sz);
+      for (size_t i=0; i < sz; i++)
           res[i] = pMem[i] + v.pMem[i];
 
       return res;
@@ -177,8 +190,8 @@ public:
       if (sz != v.sz)
           throw invalid_argument("Different vector sizes");
 
-      DynamicVector res(sz);
-      for (size_s i=0; i < sz; i++)
+     TDynamicVector res(sz);
+      for (size_t i=0; i < sz; i++)
           res[i] = pMem[i] - v.pMem[i];
 
       return res;
@@ -225,27 +238,37 @@ class TDynamicMatrix : private TDynamicVector<TDynamicVector<T>>
 {
   using TDynamicVector<TDynamicVector<T>>::pMem;
   using TDynamicVector<TDynamicVector<T>>::sz;
+
+  static size_t CheckSize(size_t s)
+  {
+      if (s == 0 || s > MAX_MATRIX_SIZE)
+          throw out_of_range("Invalid matrix size");
+
+      return s;
+  }
+
 public:
-  TDynamicMatrix(size_t s = 1) : TDynamicVector<TDynamicVector<T>>(s)
+  TDynamicMatrix(size_t s = 1) : TDynamicVector<TDynamicVector<T>>(CheckSize(s))
   {
     for (size_t i = 0; i < sz; i++)
       pMem[i] = TDynamicVector<T>(sz);
   }
 
+  using TDynamicVector<TDynamicVector<T>>::size;
   using TDynamicVector<TDynamicVector<T>>::operator[];
 
   // сравнение
   bool operator==(const TDynamicMatrix& m) const noexcept
   {
       if (sz != m.sz)
-          return False;
+          return false;
 
       for (size_t i = 0; i < sz; i++) {
           if (pMem[i] != m.pMem[i])
-              return False;
+              return false;
       }
 
-      return True;
+      return true;
   }
 
   // матрично-скалярные операции
@@ -256,7 +279,7 @@ public:
       for (size_t i = 0; i < sz; i++) {
           for (size_t j = 0; j < sz; j++) {
 
-              res[i][j] = pMem[i][j]*val
+              res[i][j] = pMem[i][j] * val;
           }
       }
       return res;
@@ -274,7 +297,7 @@ public:
           T sum = T();
 
           for (size_t j = 0; j < sz; j++) {
-              res[i][j] = pMem[i][j] * v[j];
+              sum+= pMem[i][j] * v[j];
           }
 
           res[i] = sum;
@@ -325,7 +348,7 @@ public:
       for (size_t i = 0; i < sz; i++){
 
           for (size_t j = 0; j < sz; j++){
-              result[i][j] = T();
+              res[i][j] = T();
 
               for (size_t k = 0; k < sz; k++){
                   
@@ -352,11 +375,11 @@ public:
   }
   friend ostream& operator<<(ostream& ostr, const TDynamicMatrix& v)
   {
-      for (size_t i = 0; i < m.sz; i++){
+      for (size_t i = 0; i < v.sz; i++){
 
-          for (size_t j = 0; j < m.sz; j++){
+          for (size_t j = 0; j < v.sz; j++){
 
-              ostr << m.pMem[i][j] << ' ';
+              ostr << v.pMem[i][j] << ' ';
           }
           ostr << '\n';
       }
